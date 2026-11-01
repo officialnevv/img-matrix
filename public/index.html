@@ -1,77 +1,197 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Image Processing Using Matrices</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fafafa;--fg:#1a1a1a;--card:#fff;--bd:#ddd;--ac:#2563eb}
-@media(prefers-color-scheme:dark){:root{--bg:#141414;--fg:#eee;--card:#1e1e1e;--bd:#333;--ac:#60a5fa}}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg)}
-main{max-width:1000px;margin:auto;padding:24px}
-.box{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:16px;margin-bottom:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:640px){.grid{grid-template-columns:1fr}}
-img{max-width:100%;border-radius:6px}
-label{display:block;margin:10px 0 4px}
-select,input[type=file]{width:100%;padding:6px}
-a.btn{display:inline-block;margin-top:10px;padding:8px 14px;background:var(--ac);color:#fff;border-radius:6px;text-decoration:none}
-#err{color:#dc2626}
-</style></head><body><main>
-<h1>Image Processing Using Matrices</h1>
-<p>Linear Algebra project: an image is a matrix of numbers, and each operation is a matrix operation.</p>
-<div class="box">
-  <input type="file" id="file" accept="image/*">
-  <label>Operation</label>
-  <select id="op">
-    <option value="grayscale">Grayscale</option>
-    <option value="brightness">Brightness</option>
-    <option value="flip">Horizontal flip</option>
-    <option value="bw">Black and white</option>
-  </select>
-  <div id="bBox" hidden><label>Brightness: <b id="bv">50</b></label><input type="range" id="brightness" min="-100" max="100" value="50" style="width:100%"></div>
-  <div id="tBox" hidden><label>Threshold: <b id="tv">128</b></label><input type="range" id="threshold" min="0" max="255" value="128" style="width:100%"></div>
-  <p id="err"></p>
-</div>
-<div class="grid">
-  <div class="box"><h3>Original</h3><img id="orig" alt=""></div>
-  <div class="box"><h3>Result</h3><img id="res" alt=""><br><a class="btn" id="dl" download="result.png" hidden>Save result</a></div>
+:root{
+  color-scheme:dark;
+  --colors-primary:#F7F8F8;--colors-secondary:#9C9DA1;--colors-background:#000000;--colors-surface:#121212;
+  --colors-surface-container:#191D20;--colors-outline:#383B3F;--colors-accent-indigo:#6366F1;
+  --colors-error:#EB5757;--colors-success:#27A644;--colors-on-primary:#000000;--colors-on-surface:#F7F8F8;
+  --button-primary-hover-bg:#ffffff;--badge-success-bg:rgba(39,166,68,0.07);--badge-error-bg:rgba(243,78,82,0.1);
+  --rounded-md:8px;--rounded-lg:12px;--rounded-full:9999px;
+  --spacing-xs:4px;--spacing-sm:8px;--spacing-md:16px;--spacing-lg:24px;--spacing-xl:32px;--spacing-2xl:48px;
+  --motion-duration-short:100ms;--motion-easing-standard:cubic-bezier(0.4,0,0.2,1);
+  --elevation-sm:0 1px 2px rgba(0,0,0,0.5);--elevation-md:0 4px 12px rgba(0,0,0,0.6);
+  --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--colors-background);color:var(--colors-on-surface);font:400 0.875rem/1.5 var(--font)}
+.t-headline-lg{font:600 2rem/1.25 var(--font);letter-spacing:-0.02em;margin:0}
+.t-headline-sm{font:500 1.25rem/1.4 var(--font);margin:0}
+.t-body-sm{font:400 0.875rem/1.5 var(--font)}
+.t-label-md{font:500 0.875rem/1 var(--font)}
+.t-label-sm{font:500 0.75rem/1 var(--font);letter-spacing:0.05em}
+.page{max-width:calc(var(--spacing-2xl) * 20);margin:0 auto;padding:var(--spacing-xl) var(--spacing-lg)}
+header{text-align:center;padding-bottom:var(--spacing-lg)}
+header p{margin:var(--spacing-sm) 0 0;color:var(--colors-secondary)}
+.card{background:var(--colors-surface);border:1px solid var(--colors-outline);border-radius:var(--rounded-lg);box-shadow:var(--elevation-sm);padding:var(--spacing-lg)}
+.card-elevated{background:var(--colors-surface-container);box-shadow:var(--elevation-md)}
+.card h2{margin:0 0 var(--spacing-md);color:var(--colors-secondary)}
+.drop{display:block;text-align:center;padding:var(--spacing-lg) var(--spacing-md);background:var(--colors-background);border:1px solid var(--colors-outline);border-radius:var(--rounded-md);color:var(--colors-secondary);cursor:pointer;transition:border-color var(--motion-duration-short) var(--motion-easing-standard)}
+.drop:hover,.drop.over,.drop:focus-within{border-color:var(--colors-accent-indigo)}
+.drop b{color:var(--colors-primary);font-weight:500}
+.drop input{position:absolute;opacity:0;pointer-events:none}
+.ops{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-md)}
+.btn{display:inline-block;text-align:center;text-decoration:none;cursor:pointer;padding:var(--spacing-md);border-radius:var(--rounded-md);border:1px solid var(--colors-outline);font:500 0.875rem/1 var(--font);transition:background-color var(--motion-duration-short) var(--motion-easing-standard),border-color var(--motion-duration-short) var(--motion-easing-standard)}
+.btn:focus-visible,.slider input:focus-visible{outline:1px solid var(--colors-accent-indigo);outline-offset:0}
+.btn-primary{background:var(--colors-primary);color:var(--colors-on-primary);border-color:var(--colors-primary)}
+.btn-primary:hover{background:var(--button-primary-hover-bg);border-color:var(--button-primary-hover-bg)}
+.btn-secondary{background:var(--colors-surface-container);color:var(--colors-on-surface)}
+.btn-secondary:hover{border-color:var(--colors-secondary)}
+.formula{margin-top:var(--spacing-md);padding:var(--spacing-sm) var(--spacing-md);background:var(--colors-surface-container);border-radius:var(--rounded-md);color:var(--colors-on-surface)}
+.slider{margin-top:var(--spacing-md)}
+.slider label{display:flex;justify-content:space-between;color:var(--colors-secondary);margin-bottom:var(--spacing-sm)}
+.slider b{color:var(--colors-primary);font-weight:500}
+.slider input{width:100%;accent-color:var(--colors-accent-indigo)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md);margin-top:var(--spacing-md)}
+.frame{display:flex;align-items:center;justify-content:center;min-height:calc(var(--spacing-2xl) * 4);background:var(--colors-background);border:1px solid var(--colors-outline);border-radius:var(--rounded-md);overflow:hidden}
+.frame img{display:block;max-width:100%;max-height:60vh;transition:opacity var(--motion-duration-short) var(--motion-easing-standard)}
+.frame.loading img{opacity:0.4}
+.empty{color:var(--colors-secondary);padding:var(--spacing-lg)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);margin-top:var(--spacing-md);min-height:calc(var(--spacing-xl) + var(--spacing-sm))}
+.badge{display:inline-block;padding:var(--spacing-xs) var(--spacing-sm);border-radius:var(--rounded-full);background:var(--colors-surface-container);color:var(--colors-secondary)}
+.badge-success{background:var(--badge-success-bg);color:var(--colors-success)}
+.badge-error{background:var(--badge-error-bg);color:var(--colors-error)}
+@media(max-width:768px){.grid{grid-template-columns:1fr}.ops{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1 class="t-headline-lg">Image Processing Using Matrices</h1>
+    <p class="t-body-sm">Every image is a matrix of numbers. Pick a photo, choose an operation, and see the matrix maths at work.</p>
+  </header>
+  <section class="card">
+    <label class="drop t-body-sm" id="drop">
+      <input type="file" id="file" accept="image/*">
+      <span id="dropText"><b>Choose an image</b> or drag it here</span>
+    </label>
+    <div class="ops">
+      <button class="btn t-label-md btn-primary" data-op="grayscale">Grayscale</button>
+      <button class="btn t-label-md btn-secondary" data-op="brightness">Brightness</button>
+      <button class="btn t-label-md btn-secondary" data-op="flip">Horizontal flip</button>
+      <button class="btn t-label-md btn-secondary" data-op="bw">Black &amp; white</button>
+    </div>
+    <div class="formula t-body-sm" id="formula"></div>
+    <div class="slider t-body-sm" id="brightBox" hidden>
+      <label><span>Brightness β</span><b id="bv">50</b></label>
+      <input type="range" id="brightness" min="-100" max="100" value="50">
+    </div>
+    <div class="slider t-body-sm" id="threshBox" hidden>
+      <label><span>Threshold T</span><b id="tv">128</b></label>
+      <input type="range" id="threshold" min="0" max="255" value="128">
+    </div>
+  </section>
+  <div class="grid">
+    <section class="card">
+      <h2 class="t-label-sm">Original</h2>
+      <div class="frame t-body-sm" id="origFrame"><span class="empty">Your image will appear here</span></div>
+    </section>
+    <section class="card card-elevated">
+      <h2 class="t-label-sm">Result</h2>
+      <div class="frame t-body-sm" id="resFrame"><span class="empty">The processed image will appear here</span></div>
+      <div class="bar"><span id="status" class="t-label-sm" role="status"></span><a class="btn t-label-md btn-primary" id="save" download="result.png" hidden>Save result</a></div>
+    </section>
+  </div>
 </div>
 <script>
 const $ = id => document.getElementById(id);
+const formulas = {
+  grayscale: "Gray = 0.299·R + 0.587·G + 0.114·B",
+  brightness: "I′ = clip(I + β, 0, 255)",
+  flip: "I′ = I · J    (J = exchange matrix)",
+  bw: "B = 255 if Gray ≥ T, otherwise 0"
+};
+let op = "grayscale";
+let file = null;
 let timer;
 
-function updateControls() {
-  const op = $("op").value;
-  $("bBox").hidden = op !== "brightness";
-  $("tBox").hidden = op !== "bw";
-  $("bv").textContent = $("brightness").value;
-  $("tv").textContent = $("threshold").value;
+function setStatus(kind, text) {
+  const s = $("status");
+  s.className = "t-label-sm" + (text ? " badge" : "") + (kind ? " badge-" + kind : "");
+  s.textContent = text;
+}
+
+function showImage(frame, src) {
+  frame.innerHTML = "";
+  const img = new Image();
+  img.src = src;
+  img.alt = "";
+  frame.appendChild(img);
+}
+
+function setOp(next) {
+  op = next;
+  document.querySelectorAll("[data-op]").forEach(b => {
+    const on = b.dataset.op === op;
+    b.classList.toggle("btn-primary", on);
+    b.classList.toggle("btn-secondary", !on);
+  });
+  $("brightBox").hidden = op !== "brightness";
+  $("threshBox").hidden = op !== "bw";
+  $("formula").textContent = formulas[op];
+  run();
+}
+
+function setFile(f) {
+  if (!f || !f.type.startsWith("image/")) return;
+  file = f;
+  $("dropText").innerHTML = "<b></b>";
+  $("dropText").firstChild.textContent = f.name;
+  run();
 }
 
 async function run() {
-  updateControls();
-  const file = $("file").files[0];
+  $("bv").textContent = $("brightness").value;
+  $("tv").textContent = $("threshold").value;
   if (!file) return;
-  $("err").textContent = "";
+  setStatus("", "Processing…");
+  $("resFrame").classList.add("loading");
   const data = new FormData();
   data.append("image", file);
-  for (const k of ["op", "brightness", "threshold"]) data.append(k, $(k).value);
+  data.append("op", op);
+  data.append("brightness", $("brightness").value);
+  data.append("threshold", $("threshold").value);
   try {
     const r = await fetch("/api/process", {method: "POST", body: data});
     const d = await r.json();
-    if (!r.ok) throw new Error(d.error || "Request failed");
-    $("orig").src = d.original;
-    $("res").src = d.result;
-    $("dl").href = d.result;
-    $("dl").hidden = false;
+    if (!r.ok) throw new Error(d.error || "Something went wrong");
+    showImage($("origFrame"), d.original);
+    showImage($("resFrame"), d.result);
+    $("save").href = d.result;
+    $("save").download = "result-" + op + ".png";
+    $("save").hidden = false;
+    setStatus("success", "Done");
   } catch (e) {
-    $("err").textContent = e.message;
+    setStatus("error", e.message);
   }
+  $("resFrame").classList.remove("loading");
 }
 
-["file", "op"].forEach(id => $(id).addEventListener("change", run));
+document.querySelectorAll("[data-op]").forEach(b => b.addEventListener("click", () => setOp(b.dataset.op)));
+$("file").addEventListener("change", e => setFile(e.target.files[0]));
 ["brightness", "threshold"].forEach(id => $(id).addEventListener("input", () => {
-  updateControls();
+  $("bv").textContent = $("brightness").value;
+  $("tv").textContent = $("threshold").value;
   clearTimeout(timer);
   timer = setTimeout(run, 250);
 }));
-updateControls();
-</script></main></body></html>
+["dragenter", "dragover"].forEach(ev => $("drop").addEventListener(ev, e => {
+  e.preventDefault();
+  $("drop").classList.add("over");
+}));
+["dragleave", "drop"].forEach(ev => $("drop").addEventListener(ev, e => {
+  e.preventDefault();
+  $("drop").classList.remove("over");
+}));
+$("drop").addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
+$("formula").textContent = formulas[op];
+</script>
+</body>
+</html>
