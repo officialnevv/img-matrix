@@ -1,6 +1,6 @@
 # Image Processing Using Matrices
 
-Linear Algebra project. An image is a matrix of pixel values (0-255); a colour image is H x W x 3 (R, G, B). Everything is in one file, `app.py`, using Python + NumPy.
+Linear Algebra project. An image is a matrix of pixel values (0-255); a colour image is H x W x 3 (R, G, B). The Python code is in one file, `app.py` (Python + NumPy). The web page is `public/index.html`.
 
 | Operation | Formula | NumPy |
 |---|---|---|
@@ -23,4 +23,4 @@ python app.py
 Then open http://127.0.0.1:5000
 
 ## Deploy on Vercel
-Push to GitHub, import the repo at vercel.com/new, click Deploy. Vercel finds the Flask app in `app.py`. Uploads must be under about 4.5 MB.
+Push to GitHub, import the repo at vercel.com/new, click Deploy. Vercel finds the Flask app in `app.py` and serves the page from `public/`. Uploads must be under about 4.5 MB.
