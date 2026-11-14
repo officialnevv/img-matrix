@@ -1,197 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Image Processing Using Matrices</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  color-scheme:dark;
-  --colors-primary:#F7F8F8;--colors-secondary:#9C9DA1;--colors-background:#000000;--colors-surface:#121212;
-  --colors-surface-container:#191D20;--colors-outline:#383B3F;--colors-accent-indigo:#6366F1;
-  --colors-error:#EB5757;--colors-success:#27A644;--colors-on-primary:#000000;--colors-on-surface:#F7F8F8;
-  --button-primary-hover-bg:#ffffff;--badge-success-bg:rgba(39,166,68,0.07);--badge-error-bg:rgba(243,78,82,0.1);
-  --rounded-md:8px;--rounded-lg:12px;--rounded-full:9999px;
-  --spacing-xs:4px;--spacing-sm:8px;--spacing-md:16px;--spacing-lg:24px;--spacing-xl:32px;--spacing-2xl:48px;
-  --motion-duration-short:100ms;--motion-easing-standard:cubic-bezier(0.4,0,0.2,1);
-  --elevation-sm:0 1px 2px rgba(0,0,0,0.5);--elevation-md:0 4px 12px rgba(0,0,0,0.6);
-  --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--colors-background);color:var(--colors-on-surface);font:400 0.875rem/1.5 var(--font)}
-.t-headline-lg{font:600 2rem/1.25 var(--font);letter-spacing:-0.02em;margin:0}
-.t-headline-sm{font:500 1.25rem/1.4 var(--font);margin:0}
-.t-body-sm{font:400 0.875rem/1.5 var(--font)}
-.t-label-md{font:500 0.875rem/1 var(--font)}
-.t-label-sm{font:500 0.75rem/1 var(--font);letter-spacing:0.05em}
-.page{max-width:calc(var(--spacing-2xl) * 20);margin:0 auto;padding:var(--spacing-xl) var(--spacing-lg)}
-header{text-align:center;padding-bottom:var(--spacing-lg)}
-header p{margin:var(--spacing-sm) 0 0;color:var(--colors-secondary)}
-.card{background:var(--colors-surface);border:1px solid var(--colors-outline);border-radius:var(--rounded-lg);box-shadow:var(--elevation-sm);padding:var(--spacing-lg)}
-.card-elevated{background:var(--colors-surface-container);box-shadow:var(--elevation-md)}
-.card h2{margin:0 0 var(--spacing-md);color:var(--colors-secondary)}
-.drop{display:block;text-align:center;padding:var(--spacing-lg) var(--spacing-md);background:var(--colors-background);border:1px solid var(--colors-outline);border-radius:var(--rounded-md);color:var(--colors-secondary);cursor:pointer;transition:border-color var(--motion-duration-short) var(--motion-easing-standard)}
-.drop:hover,.drop.over,.drop:focus-within{border-color:var(--colors-accent-indigo)}
-.drop b{color:var(--colors-primary);font-weight:500}
-.drop input{position:absolute;opacity:0;pointer-events:none}
-.ops{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--spacing-sm);margin-top:var(--spacing-md)}
-.btn{display:inline-block;text-align:center;text-decoration:none;cursor:pointer;padding:var(--spacing-md);border-radius:var(--rounded-md);border:1px solid var(--colors-outline);font:500 0.875rem/1 var(--font);transition:background-color var(--motion-duration-short) var(--motion-easing-standard),border-color var(--motion-duration-short) var(--motion-easing-standard)}
-.btn:focus-visible,.slider input:focus-visible{outline:1px solid var(--colors-accent-indigo);outline-offset:0}
-.btn-primary{background:var(--colors-primary);color:var(--colors-on-primary);border-color:var(--colors-primary)}
-.btn-primary:hover{background:var(--button-primary-hover-bg);border-color:var(--button-primary-hover-bg)}
-.btn-secondary{background:var(--colors-surface-container);color:var(--colors-on-surface)}
-.btn-secondary:hover{border-color:var(--colors-secondary)}
-.formula{margin-top:var(--spacing-md);padding:var(--spacing-sm) var(--spacing-md);background:var(--colors-surface-container);border-radius:var(--rounded-md);color:var(--colors-on-surface)}
-.slider{margin-top:var(--spacing-md)}
-.slider label{display:flex;justify-content:space-between;color:var(--colors-secondary);margin-bottom:var(--spacing-sm)}
-.slider b{color:var(--colors-primary);font-weight:500}
-.slider input{width:100%;accent-color:var(--colors-accent-indigo)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md);margin-top:var(--spacing-md)}
-.frame{display:flex;align-items:center;justify-content:center;min-height:calc(var(--spacing-2xl) * 4);background:var(--colors-background);border:1px solid var(--colors-outline);border-radius:var(--rounded-md);overflow:hidden}
-.frame img{display:block;max-width:100%;max-height:60vh;transition:opacity var(--motion-duration-short) var(--motion-easing-standard)}
-.frame.loading img{opacity:0.4}
-.empty{color:var(--colors-secondary);padding:var(--spacing-lg)}
-.bar{display:flex;align-items:center;justify-content:space-between;gap:var(--spacing-md);margin-top:var(--spacing-md);min-height:calc(var(--spacing-xl) + var(--spacing-sm))}
-.badge{display:inline-block;padding:var(--spacing-xs) var(--spacing-sm);border-radius:var(--rounded-full);background:var(--colors-surface-container);color:var(--colors-secondary)}
-.badge-success{background:var(--badge-success-bg);color:var(--colors-success)}
-.badge-error{background:var(--badge-error-bg);color:var(--colors-error)}
-@media(max-width:768px){.grid{grid-template-columns:1fr}.ops{grid-template-columns:1fr 1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4efdf">
+  <title>PIXEL LAB // Image Processing Using Matrices</title>
+  <style>
+    :root {
+      --paper: #f4efdf;
+      --paper-dark: #e7dfca;
+      --ink: #20243a;
+      --muted: #65677a;
+      --blue: #3157d5;
+      --blue-dark: #203b9c;
+      --lime: #d7f36a;
+      --pink: #ff8c9b;
+      --white: #fffdf5;
+      --line: 3px solid var(--ink);
+      --shadow: 5px 5px 0 var(--ink);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(#c9c1ad 0.8px, transparent 0.8px);
+      background-size: 16px 16px;
+      font-family: "Courier New", monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 48px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; font-size: 11px; font-weight: 900; letter-spacing: 1.5px; }
+    .status-chip { padding: 5px 9px; border: 2px solid var(--ink); background: var(--lime); box-shadow: 3px 3px 0 var(--ink); }
+    header { margin-bottom: 26px; }
+    .eyebrow { display: inline-block; padding: 5px 9px; color: var(--white); background: var(--blue); font-size: 11px; font-weight: 900; letter-spacing: 1px; }
+    h1 { max-width: 760px; margin: 14px 0 8px; font-size: clamp(30px, 6vw, 54px); line-height: 1.02; letter-spacing: -2px; text-transform: uppercase; }
+    h1 span { color: var(--blue); }
+    .subtitle { max-width: 660px; margin: 0; color: var(--muted); font-weight: 700; }
+    .panel { border: var(--line); background: var(--white); box-shadow: var(--shadow); }
+    .control-panel { padding: 20px; }
+    .section-label { display: flex; align-items: center; gap: 9px; margin: 0 0 13px; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+    .section-label::before { content: ""; width: 10px; height: 10px; background: var(--pink); border: 2px solid var(--ink); }
+    .dropzone { display: grid; min-height: 112px; place-content: center; gap: 5px; padding: 18px; border: 2px dashed var(--ink); background: var(--paper); text-align: center; cursor: pointer; transition: background .12s, transform .12s; }
+    .dropzone:hover, .dropzone.over { background: #e8edff; transform: translate(-2px, -2px); }
+    .dropzone strong { font-size: 15px; }
+    .dropzone small { color: var(--muted); }
+    .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .file-name { margin-top: 8px; color: var(--blue-dark); font-size: 12px; font-weight: 900; overflow-wrap: anywhere; }
+    .operation-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 18px; }
+    .pixel-button { min-height: 48px; padding: 10px 8px; border: 2px solid var(--ink); background: var(--paper); box-shadow: 3px 3px 0 var(--ink); font-size: 11px; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: transform .08s, box-shadow .08s, background .08s; }
+    .pixel-button:hover { background: #e8edff; }
+    .pixel-button:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--ink); }
+    .pixel-button.active { color: var(--white); background: var(--blue); }
+    .pixel-button:focus-visible, input:focus-visible, .dropzone:focus-within { outline: 3px solid var(--pink); outline-offset: 3px; }
+    .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 17px; }
+    .setting { padding: 12px; border: 2px solid var(--ink); background: var(--paper); }
+    .setting[hidden] { display: none; }
+    .setting-head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; font-size: 12px; font-weight: 900; }
+    .setting output { color: var(--blue); }
+    input[type="range"] { width: 100%; accent-color: var(--blue); cursor: pointer; }
+    .formula { margin-top: 17px; padding: 10px 12px; border: 2px solid var(--ink); background: var(--lime); font-weight: 900; overflow-wrap: anywhere; }
+    .results { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; }
+    .result-panel { min-width: 0; padding: 15px; }
+    .result-panel h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 12px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    .number { color: var(--blue); }
+    .image-frame { display: grid; min-height: 260px; place-items: center; overflow: hidden; border: 2px solid var(--ink); background-color: #e9e4d6; background-image: linear-gradient(45deg, #d8d2c4 25%, transparent 25%), linear-gradient(-45deg, #d8d2c4 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d8d2c4 75%), linear-gradient(-45deg, transparent 75%, #d8d2c4 75%); background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
+    .image-frame img { display: block; max-width: 100%; max-height: 440px; object-fit: contain; }
+    .placeholder { max-width: 220px; padding: 20px; color: var(--muted); text-align: center; font-size: 12px; font-weight: 700; }
+    .result-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; margin-top: 10px; }
+    #message { color: var(--muted); font-size: 11px; font-weight: 900; }
+    #message.error { color: #b42336; }
+    #save[hidden] { display: none; }
+    .save-button { display: inline-block; padding: 9px 12px; border: 2px solid var(--ink); background: var(--lime); box-shadow: 3px 3px 0 var(--ink); color: var(--ink); text-decoration: none; font-size: 11px; font-weight: 900; }
+    .save-button:hover { background: #c9ed42; }
+    .footnote { margin: 25px 0 0; color: var(--muted); font-size: 10px; font-weight: 700; text-align: center; }
+    @media (max-width: 700px) {
+      .operation-grid { grid-template-columns: repeat(2, 1fr); }
+      .results { grid-template-columns: 1fr; }
+      .image-frame { min-height: 210px; }
+      .settings { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .shell { width: min(100% - 22px, 1040px); padding-top: 20px; }
+      .control-panel { padding: 13px; }
+      .topline { font-size: 9px; }
+      h1 { letter-spacing: -1px; }
+    }
+  </style>
 </head>
 <body>
-<div class="page">
-  <header>
-    <h1 class="t-headline-lg">Image Processing Using Matrices</h1>
-    <p class="t-body-sm">Every image is a matrix of numbers. Pick a photo, choose an operation, and see the matrix maths at work.</p>
-  </header>
-  <section class="card">
-    <label class="drop t-body-sm" id="drop">
-      <input type="file" id="file" accept="image/*">
-      <span id="dropText"><b>Choose an image</b> or drag it here</span>
-    </label>
-    <div class="ops">
-      <button class="btn t-label-md btn-primary" data-op="grayscale">Grayscale</button>
-      <button class="btn t-label-md btn-secondary" data-op="brightness">Brightness</button>
-      <button class="btn t-label-md btn-secondary" data-op="flip">Horizontal flip</button>
-      <button class="btn t-label-md btn-secondary" data-op="bw">Black &amp; white</button>
-    </div>
-    <div class="formula t-body-sm" id="formula"></div>
-    <div class="slider t-body-sm" id="brightBox" hidden>
-      <label><span>Brightness β</span><b id="bv">50</b></label>
-      <input type="range" id="brightness" min="-100" max="100" value="50">
-    </div>
-    <div class="slider t-body-sm" id="threshBox" hidden>
-      <label><span>Threshold T</span><b id="tv">128</b></label>
-      <input type="range" id="threshold" min="0" max="255" value="128">
-    </div>
-  </section>
-  <div class="grid">
-    <section class="card">
-      <h2 class="t-label-sm">Original</h2>
-      <div class="frame t-body-sm" id="origFrame"><span class="empty">Your image will appear here</span></div>
+  <main class="shell">
+    <div class="topline"><span>PIXEL LAB // MATRIX TOOLS</span><span class="status-chip">BUILD 001 / READY</span></div>
+    <header>
+      <span class="eyebrow">LINEAR ALGEBRA PROJECT</span>
+      <h1>Image processing<br><span>using matrices.</span></h1>
+      <p class="subtitle">An image is a grid of numbers. Upload one, choose a matrix operation, and inspect the result.</p>
+    </header>
+
+    <section class="panel control-panel" aria-labelledby="input-title">
+      <h2 class="section-label" id="input-title">01 / Input image</h2>
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif">
+        <strong>+ SELECT IMAGE</strong>
+        <small>Click to browse or drag an image here · max 10 MB</small>
+      </label>
+      <div class="file-name" id="file-name">NO IMAGE LOADED</div>
+
+      <h2 class="section-label" style="margin-top:22px">02 / Choose operation</h2>
+      <div class="operation-grid" role="group" aria-label="Image operations">
+        <button class="pixel-button active" type="button" data-op="grayscale">01 Grayscale</button>
+        <button class="pixel-button" type="button" data-op="brightness">02 Brightness</button>
+        <button class="pixel-button" type="button" data-op="flip">03 Flip X</button>
+        <button class="pixel-button" type="button" data-op="bw">04 B / W</button>
+      </div>
+
+      <div class="settings">
+        <div class="setting" id="brightness-setting" hidden>
+          <div class="setting-head"><label for="brightness">BRIGHTNESS (β)</label><output id="brightness-value">+50</output></div>
+          <input type="range" id="brightness" min="-100" max="100" value="50">
+        </div>
+        <div class="setting" id="threshold-setting" hidden>
+          <div class="setting-head"><label for="threshold">THRESHOLD (T)</label><output id="threshold-value">128</output></div>
+          <input type="range" id="threshold" min="0" max="255" value="128">
+        </div>
+      </div>
+      <div class="formula" id="formula">GRAY = 0.299R + 0.587G + 0.114B</div>
     </section>
-    <section class="card card-elevated">
-      <h2 class="t-label-sm">Result</h2>
-      <div class="frame t-body-sm" id="resFrame"><span class="empty">The processed image will appear here</span></div>
-      <div class="bar"><span id="status" class="t-label-sm" role="status"></span><a class="btn t-label-md btn-primary" id="save" download="result.png" hidden>Save result</a></div>
-    </section>
-  </div>
-</div>
-<script>
-const $ = id => document.getElementById(id);
-const formulas = {
-  grayscale: "Gray = 0.299·R + 0.587·G + 0.114·B",
-  brightness: "I′ = clip(I + β, 0, 255)",
-  flip: "I′ = I · J    (J = exchange matrix)",
-  bw: "B = 255 if Gray ≥ T, otherwise 0"
-};
-let op = "grayscale";
-let file = null;
-let timer;
 
-function setStatus(kind, text) {
-  const s = $("status");
-  s.className = "t-label-sm" + (text ? " badge" : "") + (kind ? " badge-" + kind : "");
-  s.textContent = text;
-}
+    <div class="results">
+      <section class="panel result-panel">
+        <h2><span>Original image</span><span class="number">[ A ]</span></h2>
+        <div class="image-frame" id="original-frame"><div class="placeholder">YOUR INPUT WILL APPEAR HERE</div></div>
+      </section>
+      <section class="panel result-panel">
+        <h2><span>Processed image</span><span class="number">[ A′ ]</span></h2>
+        <div class="image-frame" id="result-frame"><div class="placeholder">YOUR RESULT WILL APPEAR HERE</div></div>
+        <div class="result-footer"><span id="message" role="status" aria-live="polite">WAITING FOR IMAGE</span><a class="save-button" id="save" download="matrix-result.png" hidden>↓ SAVE PNG</a></div>
+      </section>
+    </div>
+    <p class="footnote">POWERED BY NUMPY // THE MATRIX OPERATIONS ARE THE CORE OF THIS PROJECT</p>
+  </main>
 
-function showImage(frame, src) {
-  frame.innerHTML = "";
-  const img = new Image();
-  img.src = src;
-  img.alt = "";
-  frame.appendChild(img);
-}
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const formulas = {
+      grayscale: "GRAY = RGB · [0.299, 0.587, 0.114]ᵀ",
+      brightness: "A′ = clip(A + β, 0, 255)",
+      flip: "A′ = A · J   //   J = REVERSAL MATRIX",
+      bw: "Bᵢⱼ = 255 IF GRAYᵢⱼ ≥ T, OTHERWISE 0"
+    };
 
-function setOp(next) {
-  op = next;
-  document.querySelectorAll("[data-op]").forEach(b => {
-    const on = b.dataset.op === op;
-    b.classList.toggle("btn-primary", on);
-    b.classList.toggle("btn-secondary", !on);
-  });
-  $("brightBox").hidden = op !== "brightness";
-  $("threshBox").hidden = op !== "bw";
-  $("formula").textContent = formulas[op];
-  run();
-}
+    let selectedFile = null;
+    let operation = "grayscale";
+    let requestNumber = 0;
+    let debounceTimer;
 
-function setFile(f) {
-  if (!f || !f.type.startsWith("image/")) return;
-  file = f;
-  $("dropText").innerHTML = "<b></b>";
-  $("dropText").firstChild.textContent = f.name;
-  run();
-}
+    function status(message, isError = false) {
+      byId("message").textContent = message;
+      byId("message").classList.toggle("error", isError);
+    }
 
-async function run() {
-  $("bv").textContent = $("brightness").value;
-  $("tv").textContent = $("threshold").value;
-  if (!file) return;
-  setStatus("", "Processing…");
-  $("resFrame").classList.add("loading");
-  const data = new FormData();
-  data.append("image", file);
-  data.append("op", op);
-  data.append("brightness", $("brightness").value);
-  data.append("threshold", $("threshold").value);
-  try {
-    const r = await fetch("/api/process", {method: "POST", body: data});
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || "Something went wrong");
-    showImage($("origFrame"), d.original);
-    showImage($("resFrame"), d.result);
-    $("save").href = d.result;
-    $("save").download = "result-" + op + ".png";
-    $("save").hidden = false;
-    setStatus("success", "Done");
-  } catch (e) {
-    setStatus("error", e.message);
-  }
-  $("resFrame").classList.remove("loading");
-}
+    function showImage(frameId, source, alt) {
+      const image = new Image();
+      image.alt = alt;
+      image.src = source;
+      const frame = byId(frameId);
+      frame.replaceChildren(image);
+    }
 
-document.querySelectorAll("[data-op]").forEach(b => b.addEventListener("click", () => setOp(b.dataset.op)));
-$("file").addEventListener("change", e => setFile(e.target.files[0]));
-["brightness", "threshold"].forEach(id => $(id).addEventListener("input", () => {
-  $("bv").textContent = $("brightness").value;
-  $("tv").textContent = $("threshold").value;
-  clearTimeout(timer);
-  timer = setTimeout(run, 250);
-}));
-["dragenter", "dragover"].forEach(ev => $("drop").addEventListener(ev, e => {
-  e.preventDefault();
-  $("drop").classList.add("over");
-}));
-["dragleave", "drop"].forEach(ev => $("drop").addEventListener(ev, e => {
-  e.preventDefault();
-  $("drop").classList.remove("over");
-}));
-$("drop").addEventListener("drop", e => setFile(e.dataTransfer.files[0]));
-$("formula").textContent = formulas[op];
-</script>
+    function chooseOperation(next) {
+      operation = next;
+      document.querySelectorAll("[data-op]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.op === operation);
+      });
+      byId("brightness-setting").hidden = operation !== "brightness";
+      byId("threshold-setting").hidden = operation !== "bw";
+      byId("formula").textContent = formulas[operation];
+      processImage();
+    }
+
+    function chooseFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith("image/")) return status("PLEASE SELECT AN IMAGE FILE", true);
+      if (file.size > 10 * 1024 * 1024) return status("IMAGE IS LARGER THAN 10 MB", true);
+      selectedFile = file;
+      byId("file-name").textContent = "LOADED: " + file.name;
+      processImage();
+    }
+
+    async function processImage() {
+      if (!selectedFile) return;
+      const currentRequest = ++requestNumber;
+      status("PROCESSING...");
+      const form = new FormData();
+      form.append("image", selectedFile);
+      form.append("op", operation);
+      form.append("brightness", byId("brightness").value);
+      form.append("threshold", byId("threshold").value);
+
+      try {
+        const response = await fetch("/api/process", { method: "POST", body: form });
+        const data = await response.json();
+        if (currentRequest !== requestNumber) return;
+        if (!response.ok) throw new Error(data.error || "PROCESSING FAILED");
+        showImage("original-frame", data.original, "Original image");
+        showImage("result-frame", data.result, "Processed image");
+        byId("save").href = data.result;
+        byId("save").download = "matrix-" + operation + ".png";
+        byId("save").hidden = false;
+        status("DONE // RESULT READY");
+      } catch (error) {
+        if (currentRequest === requestNumber) status(error.message || "COULD NOT PROCESS IMAGE", true);
+      }
+    }
+
+    document.querySelectorAll("[data-op]").forEach((button) => {
+      button.addEventListener("click", () => chooseOperation(button.dataset.op));
+    });
+    byId("file").addEventListener("change", (event) => chooseFile(event.target.files[0]));
+    byId("brightness").addEventListener("input", () => {
+      const value = Number(byId("brightness").value);
+      byId("brightness-value").textContent = value > 0 ? "+" + value : String(value);
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(processImage, 180);
+    });
+    byId("threshold").addEventListener("input", () => {
+      byId("threshold-value").textContent = byId("threshold").value;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(processImage, 180);
+    });
+
+    const dropzone = byId("dropzone");
+    ["dragenter", "dragover"].forEach((eventName) => dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropzone.classList.add("over");
+    }));
+    ["dragleave", "drop"].forEach((eventName) => dropzone.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropzone.classList.remove("over");
+    }));
+    dropzone.addEventListener("drop", (event) => chooseFile(event.dataTransfer.files[0]));
+  </script>
 </body>
 </html>
