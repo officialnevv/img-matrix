@@ -237,9 +237,15 @@
     .status-row { position: relative; margin-top: 13px; min-height: 18px; }
     .status-row .status { margin-top: 0; }
     .loader {
-      position: absolute; left: 0; right: 0; top: 0; height: 18px;
-      display: flex; justify-content: center; align-items: flex-end; gap: 8px;
-      pointer-events: none;
+        position: static;
+        flex: 0 0 auto;
+        min-width: 65px;
+        height: 43px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        pointer-events: none;
     }
     .loader[hidden] { display: none; }
     .loader i {
@@ -309,8 +315,8 @@
       .actions { gap: 8px; }
       .action-group { gap: 7px; }
       .button { padding: 9px 10px; font-size: 14px; }
-      .loader { min-width: 35px; gap: 3px; }
-      .loader i { width: 8px; height: 8px; }
+      .loader { min-width: 55px; gap: 5px; }
+      .loader i { width: 12px; height: 12px; }
     }
   </style>
 </head>
