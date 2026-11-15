@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 from flask import Flask, jsonify, request, send_from_directory
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image
 
 from matrix_operations import (
     adjust_brightness,
@@ -14,55 +14,43 @@ from matrix_operations import (
 )
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 
-@app.get("/")
+def image_to_url(array):
+    output = io.BytesIO()
+    Image.fromarray(array).save(output, format="PNG")
+    encoded_image = base64.b64encode(output.getvalue()).decode("utf-8")
+    return "data:image/png;base64," + encoded_image
+
+
+@app.route("/")
 def home():
     return send_from_directory(Path(__file__).parent / "public", "index.html")
 
 
-@app.post("/api/process")
+@app.route("/api/process", methods=["POST"])
 def process_image():
-    uploaded = request.files.get("image")
-    if uploaded is None or not uploaded.filename:
-        return jsonify(error="Choose an image first."), 400
+    uploaded_image = request.files["image"]
+    image = Image.open(uploaded_image).convert("RGB")
+    original = np.array(image)
 
-    try:
-        with Image.open(uploaded.stream) as source:
-            image = ImageOps.exif_transpose(source).convert("RGB")
-            image.thumbnail((1200, 1200))
-            rgb = np.asarray(image, dtype=np.uint8)
+    operation = request.form["op"]
 
-        operation = request.form.get("op", "grayscale")
-        if operation == "grayscale":
-            result = to_grayscale(rgb)
-        elif operation == "brightness":
-            result = adjust_brightness(rgb, int(request.form.get("brightness", 0)))
-        elif operation == "flip":
-            result = flip_horizontal(rgb)
-        elif operation == "bw":
-            result = to_black_white(rgb, int(request.form.get("threshold", 128)))
-        else:
-            return jsonify(error="Choose a valid operation."), 400
+    if operation == "grayscale":
+        result = to_grayscale(original)
+    elif operation == "brightness":
+        brightness = int(request.form.get("brightness", 0))
+        result = adjust_brightness(original, brightness)
+    elif operation == "flip":
+        result = flip_horizontal(original)
+    elif operation == "bw":
+        threshold = int(request.form.get("threshold", 128))
+        result = to_black_white(original, threshold)
 
-        def png_data_url(array):
-            buffer = io.BytesIO()
-            Image.fromarray(np.ascontiguousarray(array)).save(buffer, format="PNG")
-            encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
-            return f"data:image/png;base64,{encoded}"
-
-        return jsonify(original=png_data_url(rgb), result=png_data_url(result))
-
-    except (UnidentifiedImageError, OSError):
-        return jsonify(error="That file is not a valid image."), 400
-    except ValueError:
-        return jsonify(error="Enter valid numeric settings."), 400
-
-
-@app.errorhandler(413)
-def file_too_large(_error):
-    return jsonify(error="Image is too large. The maximum file size is 10 MB."), 413
+    return jsonify({
+        "original": image_to_url(original),
+        "result": image_to_url(result)
+    })
 
 
 if __name__ == "__main__":
