@@ -40,6 +40,8 @@
     }
 
     .app { width: min(540px, 100%); }
+    .app.wide { width: min(1100px, 100%); }
+    .app.wide .guide { max-width: 540px; margin-inline: auto; }
     .guide {
       display: flex;
       align-items: center;
@@ -201,16 +203,33 @@
     .result { min-width: 0; }
     .result-title { margin: 0 0 8px; font-family: "Press Start 2P", "Courier New", monospace; font-size: 8px; line-height: 1.8; }
     .image-frame {
-      width: fit-content;
-      max-width: 100%;
+      width: min(100%, calc(560px * var(--ratio, 1.5)));
       margin: 0 auto;
       overflow: hidden;
       border: 2px solid var(--ink);
       background: #e9e4d6;
       line-height: 0;
     }
-    .image-frame img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; }
+    .image-frame img { display: block; width: 100%; height: auto; }
     .empty { padding: 12px; color: #666; font-size: 11px; text-align: center; }
+    .loader { display: flex; justify-content: center; gap: 8px; padding-top: 10px; margin-top: 8px; }
+    .loader[hidden] { display: none; }
+    .loader i {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--ink);
+      background: var(--blue);
+      animation: hop .8s steps(3) infinite;
+    }
+    .loader i:nth-child(2) { animation-delay: .1s; }
+    .loader i:nth-child(3) { animation-delay: .2s; }
+    .loader i:nth-child(4) { animation-delay: .3s; }
+    .loader i:nth-child(5) { animation-delay: .4s; }
+    @keyframes hop {
+      0%, 100% { transform: translateY(0); background: var(--blue); }
+      50% { transform: translateY(-10px); background: var(--green); }
+    }
+    @media (prefers-reduced-motion: reduce) { .loader i { animation: none; } }
     .status { min-height: 18px; margin-top: 13px; color: var(--blue); font-size: 12px; }
     .status.error { color: #b42336; }
 
@@ -323,6 +342,9 @@
         </div>
       </div>
 
+      <div class="loader" id="loader" role="img" aria-label="Processing" hidden>
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
       <div class="status" id="status" role="status" aria-live="polite"></div>
     </section>
   </main>
@@ -353,6 +375,7 @@
         panel.hidden = Number(panel.dataset.step) !== step;
       });
       byId("max-message").textContent = messages[step];
+      document.querySelector(".app").classList.toggle("wide", step === 4);
       setStatus("");
     }
 
@@ -414,6 +437,7 @@
     function showImage(frameId, source, alt) {
       const image = new Image();
       image.alt = alt;
+      image.onload = () => byId(frameId).style.setProperty("--ratio", image.naturalWidth / image.naturalHeight);
       image.src = source;
       byId(frameId).replaceChildren(image);
     }
@@ -423,7 +447,8 @@
       busy = true;
       button.disabled = true;
       button.textContent = "WORKING...";
-      setStatus("Max is working...");
+      setStatus("");
+      byId("loader").hidden = false;
 
       const form = new FormData();
       form.append("image", selectedFile);
@@ -444,6 +469,7 @@
         setStatus(error.message || "Could not process the image.", true);
       } finally {
         busy = false;
+        byId("loader").hidden = true;
         button.disabled = false;
         byId("process").textContent = "PROCESS →";
         updateStepFlow();
