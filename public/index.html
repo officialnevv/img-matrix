@@ -293,6 +293,25 @@
     .button.secondary, .button.secondary:hover { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
     .button:disabled { filter: none; }
       .setting label, .button, .step-count { font-weight: 700; }
+
+    /* Compact supporting typography while keeping Max's speech bubble unchanged. */
+    .step-count { display: inline-block; margin: 0 0 14px; padding: 5px 9px; border: 2px solid var(--ink); background: var(--lime); color: var(--ink); font-size: 16px; line-height: 1.2; }
+    .upload strong, .choice strong { font-size: 19px; }
+    .upload small, .choice span, .setting-note, .status, .empty { font-size: 15px; }
+    .setting label { font-size: 18px; }
+    .button { font-size: 16px; line-height: 1.2; padding: 10px 12px; }
+    .result-title { display: inline-block; margin: 0 0 8px; padding: 5px 9px; border: 2px solid var(--ink); background: var(--lime); color: var(--ink); font-size: 16px; line-height: 1.2; }
+    .loader { position: static; flex: 1 1 48px; min-width: 48px; height: 43px; align-items: center; justify-content: center; gap: 5px; }
+    .loader i { width: 10px; height: 10px; border-width: 2px; }
+    .loader[hidden] { display: none; }
+    @media (max-width: 420px) {
+      .panel { padding: 16px; }
+      .actions { gap: 8px; }
+      .action-group { gap: 7px; }
+      .button { padding: 9px 10px; font-size: 14px; }
+      .loader { min-width: 35px; gap: 3px; }
+      .loader i { width: 8px; height: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -551,7 +570,9 @@
       button.disabled = true;
       button.textContent = "WORKING...";
       setStatus("");
-      byId("loader").hidden = false;
+      const loader = byId("loader");
+      loader.hidden = false;
+      button.parentElement.insertBefore(loader, button);
       document.querySelector(".app").classList.add("is-processing");
       byId("max-message").textContent = "Computing... Max is crunching the pixels!";
 
@@ -575,7 +596,9 @@
       } finally {
         busy = false;
         document.querySelector(".app").classList.remove("is-processing");
-        byId("loader").hidden = true;
+        const loader = byId("loader");
+        loader.hidden = true;
+        byId("status").parentElement.appendChild(loader);
         if (byId("status").textContent) byId("max-message").textContent = messages[3] === undefined ? "Let's try that again." : messages[3];
         button.disabled = false;
         byId("process").textContent = "PROCESS →";
