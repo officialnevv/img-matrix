@@ -105,7 +105,20 @@
     .upload strong, .choice strong { font-size: 9px; line-height: 1.8; }
     .upload small { color: #666; font-size: 12px; }
     #file { position: absolute; width: 1px; height: 1px; opacity: 0; }
-    .file-name { margin-top: 12px; overflow-wrap: anywhere; font-size: 12px; }
+    .upload.has-image { display: block; min-height: 0; padding: 10px; }
+    .upload.has-image .upload-icon,
+    .upload.has-image strong,
+    .upload.has-image small { display: none; }
+    .upload-preview {
+      display: block;
+      width: auto;
+      max-width: 100%;
+      height: auto;
+      max-height: 420px;
+      margin: 0 auto;
+      border: 2px solid var(--ink);
+    }
+    .upload-preview[hidden] { display: none; }
 
     .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .choice {
@@ -127,10 +140,48 @@
     }
     .setting label { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
     .setting output { color: var(--blue); }
-    input[type="range"] { width: 100%; margin: 18px 0 5px; accent-color: var(--blue); }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 18px;
+      margin: 18px 0 5px;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border: 0;
+      border-radius: 0;
+      background: var(--blue);
+    }
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      border: 0;
+      border-radius: 0;
+      background: var(--blue);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      margin-top: -5px;
+      border: 0;
+      border-radius: 0;
+      background: var(--blue);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border: 0;
+      border-radius: 0;
+      background: var(--blue);
+    }
     .setting-note { margin: 8px 0 0; color: #666; font-size: 12px; line-height: 1.4; }
 
     .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+    .actions[hidden] { display: none; }
     .button {
       min-height: 43px;
       padding: 11px 13px;
@@ -150,14 +201,15 @@
     .result { min-width: 0; }
     .result-title { margin: 0 0 8px; font-family: "Press Start 2P", "Courier New", monospace; font-size: 8px; line-height: 1.8; }
     .image-frame {
-      min-height: 145px;
-      display: grid;
-      place-items: center;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto;
       overflow: hidden;
       border: 2px solid var(--ink);
       background: #e9e4d6;
+      line-height: 0;
     }
-    .image-frame img { display: block; max-width: 100%; max-height: 260px; object-fit: contain; }
+    .image-frame img { display: block; width: auto; max-width: 100%; height: auto; max-height: 420px; }
     .empty { padding: 12px; color: #666; font-size: 11px; text-align: center; }
     .status { min-height: 18px; margin-top: 13px; color: var(--blue); font-size: 12px; }
     .status.error { color: #b42336; }
@@ -170,7 +222,6 @@
       .panel { padding: 16px; }
       .choices, .results { grid-template-columns: 1fr; }
       .choice { min-height: 70px; }
-      .image-frame { min-height: 120px; }
       .button { font-size: 7px; padding: 9px; }
     }
   </style>
@@ -200,11 +251,11 @@
         <p class="step-count">1 / 4</p>
         <label class="upload" id="dropzone">
           <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <img class="upload-preview" id="upload-preview" alt="" hidden>
           <span class="upload-icon">▧</span>
           <strong>CHOOSE AN IMAGE</strong>
           <small>Click or drop an image here</small>
         </label>
-        <div class="file-name" id="file-name"></div>
         <div class="actions" id="upload-actions" hidden>
           <span></span>
           <button class="button" id="to-operations" type="button">NEXT →</button>
@@ -287,6 +338,10 @@
 
     let selectedFile = null;
     let operation = "grayscale";
+    let previewUrl = null;
+    let busy = false;
+
+    const hasSettings = (op) => op === "brightness" || op === "bw";
 
     function setStatus(message, error = false) {
       byId("status").textContent = message;
@@ -301,6 +356,35 @@
       setStatus("");
     }
 
+    function setPreview(file) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = file ? URL.createObjectURL(file) : null;
+      const preview = byId("upload-preview");
+      if (previewUrl) {
+        preview.src = previewUrl;
+        preview.alt = file.name;
+        preview.title = file.name;
+        preview.hidden = false;
+      } else {
+        preview.removeAttribute("src");
+        preview.alt = "";
+        preview.title = "";
+        preview.hidden = true;
+      }
+      byId("dropzone").classList.toggle("has-image", Boolean(previewUrl));
+    }
+
+    function updateStepFlow() {
+      const total = hasSettings(operation) ? 4 : 3;
+      document.querySelectorAll("[data-step]").forEach((panel) => {
+        const number = Number(panel.dataset.step);
+        const shown = number === 4 ? total : number;
+        panel.querySelector(".step-count").textContent = shown + " / " + total;
+      });
+      const next = byId("to-settings");
+      if (!next.disabled) next.textContent = hasSettings(operation) ? "NEXT →" : "PROCESS →";
+    }
+
     function chooseFile(file) {
       if (!file) return;
       if (!file.type.startsWith("image/")) {
@@ -312,7 +396,7 @@
         return;
       }
       selectedFile = file;
-      byId("file-name").textContent = file.name;
+      setPreview(file);
       byId("upload-actions").hidden = false;
       setStatus("");
     }
@@ -324,6 +408,7 @@
       });
       byId("brightness-setting").hidden = operation !== "brightness";
       byId("threshold-setting").hidden = operation !== "bw";
+      updateStepFlow();
     }
 
     function showImage(frameId, source, alt) {
@@ -333,9 +418,9 @@
       byId(frameId).replaceChildren(image);
     }
 
-    async function processImage() {
-      if (!selectedFile) return;
-      const button = byId("process");
+    async function processImage(button) {
+      if (!selectedFile || busy) return;
+      busy = true;
       button.disabled = true;
       button.textContent = "WORKING...";
       setStatus("Max is working...");
@@ -358,8 +443,10 @@
       } catch (error) {
         setStatus(error.message || "Could not process the image.", true);
       } finally {
+        busy = false;
         button.disabled = false;
-        button.textContent = "PROCESS →";
+        byId("process").textContent = "PROCESS →";
+        updateStepFlow();
       }
     }
 
@@ -368,7 +455,10 @@
     document.querySelectorAll("[data-op]").forEach((button) => {
       button.addEventListener("click", () => chooseOperation(button.dataset.op));
     });
-    byId("to-settings").addEventListener("click", () => showStep(3));
+    byId("to-settings").addEventListener("click", (event) => {
+      if (hasSettings(operation)) showStep(3);
+      else processImage(event.currentTarget);
+    });
     document.querySelectorAll("[data-back]").forEach((button) => {
       button.addEventListener("click", () => showStep(Number(button.dataset.back)));
     });
@@ -379,12 +469,12 @@
     byId("threshold").addEventListener("input", () => {
       byId("threshold-value").textContent = byId("threshold").value;
     });
-    byId("process").addEventListener("click", processImage);
+    byId("process").addEventListener("click", (event) => processImage(event.currentTarget));
     byId("again").addEventListener("click", () => showStep(2));
     byId("new-image").addEventListener("click", () => {
       selectedFile = null;
       byId("file").value = "";
-      byId("file-name").textContent = "";
+      setPreview(null);
       byId("upload-actions").hidden = true;
       showStep(1);
     });
