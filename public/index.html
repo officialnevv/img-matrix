@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f3e8">
+  <meta name="theme-color" content="#2b2d31">
   <title>Image Matrix Project</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
     :root {
-      --paper: #f7f3e8;
-      --white: #fffdf7;
-      --ink: #252b3d;
-      --blue: #4264d8;
-      --green: #d9ef83;
-      --pink: #ff9baa;
+      color-scheme: dark;
+      --paper: #2b2d31;
+      --white: #383a40;
+      --ink: #0f1012;
+      --text: #ecece8;
+      --muted: #a4a5a0;
+      --track: #54565c;
+      --lime: #c4f24a;
+      --lime-dark: #a8d52f;
+      --hover: #43454b;
     }
 
     * { box-sizing: border-box; }
@@ -24,18 +28,20 @@
       display: grid;
       place-items: center;
       padding: 20px;
-      color: var(--ink);
+      color: var(--text);
       background-color: var(--paper);
-      background-image: radial-gradient(#d9d2c1 1px, transparent 1px);
+      background-image: radial-gradient(#3a3c41 1px, transparent 1px);
       background-size: 18px 18px;
-      font-family: "Courier New", monospace;
-      font-weight: 700;
+      font-family: "Press Start 2P", "Courier New", monospace;
+      font-weight: 400;
     }
 
     button, input { font: inherit; }
     button { color: inherit; }
+    .button { color: var(--ink); }
+    .button.secondary { color: var(--text); }
     button:focus-visible, input:focus-visible, label:focus-within {
-      outline: 3px solid var(--pink);
+      outline: 3px solid var(--lime);
       outline-offset: 3px;
     }
 
@@ -49,6 +55,13 @@
       margin-bottom: 22px;
     }
     .max { flex: 0 0 82px; width: 82px; height: 82px; image-rendering: pixelated; }
+    .max .eye { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
+    .max .bulb { animation: glow 1.6s steps(2) infinite; }
+    .max { animation: bob 2.4s steps(2) infinite; }
+    @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96%, 98% { transform: scaleY(.15); } }
+    @keyframes glow { 50% { opacity: .35; } }
+    @keyframes bob { 50% { transform: translateY(-1px); } }
+    @media (prefers-reduced-motion: reduce) { .max, .max .eye, .max .bulb { animation: none; } }
     .speech {
       position: relative;
       flex: 1;
@@ -59,21 +72,19 @@
       border: 3px solid var(--ink);
       background: var(--white);
       box-shadow: 4px 4px 0 var(--ink);
-      font-size: 15px;
-      line-height: 1.5;
+      font-size: 10px;
+      line-height: 1.8;
     }
-    .speech::before {
+    .speech::before, .speech::after {
       content: "";
       position: absolute;
       left: -9px;
-      top: 30px;
+      top: 24px;
       width: 12px;
-      height: 12px;
-      background: var(--white);
-      border-left: 3px solid var(--ink);
-      border-bottom: 3px solid var(--ink);
-      transform: rotate(45deg);
+      height: 15px;
     }
+    .speech::before { background: var(--ink); clip-path: polygon(6px 0, 12px 0, 12px 15px, 6px 15px, 6px 12px, 3px 12px, 3px 9px, 0 9px, 0 6px, 3px 6px, 3px 3px, 6px 3px); }
+    .speech::after { background: var(--white); clip-path: polygon(6px 3px, 12px 3px, 12px 12px, 6px 12px, 6px 9px, 3px 9px, 3px 6px, 6px 6px); }
 
     .panel {
       padding: 22px;
@@ -87,7 +98,7 @@
     }
     .step-count {
       margin: 0 0 18px;
-      color: var(--blue);
+      color: var(--lime);
       font-family: "Press Start 2P", "Courier New", monospace;
       font-size: 9px;
     }
@@ -102,10 +113,10 @@
       text-align: center;
       cursor: pointer;
     }
-    .upload:hover, .upload.over { background: #e9edff; }
-    .upload-icon { color: var(--blue); font-size: 34px; }
+    .upload:hover, .upload.over { background: var(--hover); }
+    .upload-icon { color: var(--lime); font-size: 34px; }
     .upload strong, .choice strong { font-size: 9px; line-height: 1.8; }
-    .upload small { color: #666; font-size: 12px; }
+    .upload small { color: var(--muted); font-size: 8px; line-height: 1.8; }
     #file { position: absolute; width: 1px; height: 1px; opacity: 0; }
     .upload.has-image { display: block; min-height: 0; padding: 10px; }
     .upload.has-image .upload-icon,
@@ -131,56 +142,55 @@
       text-align: left;
       cursor: pointer;
     }
-    .choice:hover { background: #e9edff; }
-    .choice.selected { background: var(--green); box-shadow: 3px 3px 0 var(--ink); transform: translate(-2px, -2px); }
-    .choice span { display: block; margin-top: 7px; color: #555; font-size: 12px; line-height: 1.35; }
+    .choice:hover { background: var(--hover); }
+    .choice.selected { color: var(--ink); background: var(--lime); box-shadow: 3px 3px 0 var(--ink); transform: translate(-2px, -2px); }
+    .choice.selected span { color: #2c3a05; }
+    .choice span { display: block; margin-top: 7px; color: var(--muted); font-size: 8px; line-height: 1.8; }
 
     .setting {
       padding: 15px;
       border: 2px solid var(--ink);
       background: var(--paper);
     }
-    .setting label { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
-    .setting output { color: var(--blue); }
+    .setting label { display: flex; justify-content: space-between; gap: 12px; font-size: 9px; line-height: 1.8; }
+    .setting output { color: var(--lime); }
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
-      height: 18px;
-      margin: 18px 0 5px;
+      height: 22px;
+      margin: 16px 0 5px;
       background: transparent;
       cursor: pointer;
+      --a: 50%; --b: 50%;
     }
+    /* brightness: fill runs from the centre out to the knob, either side */
     input[type="range"]::-webkit-slider-runnable-track {
-      height: 8px;
-      border: 0;
-      border-radius: 0;
-      background: var(--blue);
+      height: 8px; border: 0; border-radius: 0;
+      background:
+        linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
+        linear-gradient(to right, var(--track) var(--a), var(--lime) var(--a) var(--b), var(--track) var(--b));
     }
     input[type="range"]::-moz-range-track {
-      height: 8px;
-      border: 0;
-      border-radius: 0;
-      background: var(--blue);
+      height: 8px; border: 0; border-radius: 0;
+      background:
+        linear-gradient(var(--ink), var(--ink)) center / 2px 100% no-repeat,
+        linear-gradient(to right, var(--track) var(--a), var(--lime) var(--a) var(--b), var(--track) var(--b));
     }
+    /* threshold: no fill bar, just a quiet hairline and the knob */
+    input[type="range"].plain::-webkit-slider-runnable-track { height: 2px; background: var(--track); }
+    input[type="range"].plain::-moz-range-track { height: 2px; background: var(--track); }
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      margin-top: -5px;
-      border: 0;
-      border-radius: 0;
-      background: var(--blue);
+      -webkit-appearance: none; appearance: none;
+      width: 20px; height: 20px; margin-top: -6px;
+      border: 3px solid var(--ink); border-radius: 0; background: var(--lime);
     }
+    input[type="range"].plain::-webkit-slider-thumb { margin-top: -9px; }
     input[type="range"]::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border: 0;
-      border-radius: 0;
-      background: var(--blue);
+      width: 20px; height: 20px; box-sizing: border-box;
+      border: 3px solid var(--ink); border-radius: 0; background: var(--lime);
     }
-    .setting-note { margin: 8px 0 0; color: #666; font-size: 12px; line-height: 1.4; }
+    .setting-note { margin: 8px 0 0; color: var(--muted); font-size: 8px; line-height: 1.8; }
 
     .actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
     .actions[hidden] { display: none; }
@@ -188,14 +198,14 @@
       min-height: 43px;
       padding: 11px 13px;
       border: 2px solid var(--ink);
-      background: var(--green);
+      background: var(--lime);
       box-shadow: 3px 3px 0 var(--ink);
       font-size: 8px;
       line-height: 1.7;
       text-decoration: none;
       cursor: pointer;
     }
-    .button:hover { background: #cbe66a; }
+    .button:hover { background: var(--lime-dark); }
     .button.secondary { background: var(--paper); }
     .button:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
@@ -207,18 +217,23 @@
       margin: 0 auto;
       overflow: hidden;
       border: 2px solid var(--ink);
-      background: #e9e4d6;
+      background: #1d1e21;
       line-height: 0;
     }
     .image-frame img { display: block; width: 100%; height: auto; }
-    .empty { padding: 12px; color: #666; font-size: 11px; text-align: center; }
-    .loader { display: flex; justify-content: center; gap: 8px; padding-top: 10px; margin-top: 8px; }
+    .empty { padding: 12px; color: var(--muted); font-size: 8px; line-height: 1.8; text-align: center; }
+    .status-row { position: relative; margin-top: 13px; min-height: 18px; }
+    .status-row .status { margin-top: 0; }
+    .loader {
+      position: absolute; left: 0; right: 0; top: 0; height: 18px;
+      display: flex; justify-content: center; align-items: flex-end; gap: 8px;
+      pointer-events: none;
+    }
     .loader[hidden] { display: none; }
     .loader i {
-      width: 14px;
-      height: 14px;
+      width: 14px; height: 14px;
       border: 2px solid var(--ink);
-      background: var(--blue);
+      background: var(--lime);
       animation: hop .8s steps(3) infinite;
     }
     .loader i:nth-child(2) { animation-delay: .1s; }
@@ -226,41 +241,113 @@
     .loader i:nth-child(4) { animation-delay: .3s; }
     .loader i:nth-child(5) { animation-delay: .4s; }
     @keyframes hop {
-      0%, 100% { transform: translateY(0); background: var(--blue); }
-      50% { transform: translateY(-10px); background: var(--green); }
+      0%, 100% { transform: translateY(0); background: var(--lime); }
+      50% { transform: translateY(-8px); background: #e9fbb0; }
     }
     @media (prefers-reduced-motion: reduce) { .loader i { animation: none; } }
-    .status { min-height: 18px; margin-top: 13px; color: var(--blue); font-size: 12px; }
-    .status.error { color: #b42336; }
+    .status { min-height: 18px; font-size: 8px; line-height: 1.8; color: var(--lime); }
+    .status.error { color: #ff8a8a; }
 
     @media (max-width: 460px) {
       body { padding: 14px; }
       .guide { gap: 10px; margin-bottom: 17px; }
       .max { flex-basis: 66px; width: 66px; height: 66px; }
-      .speech { min-height: 68px; padding: 10px 12px; font-size: 13px; }
+      .speech { min-height: 68px; padding: 10px 12px; font-size: 8px; }
       .panel { padding: 16px; }
       .choices, .results { grid-template-columns: 1fr; }
       .choice { min-height: 70px; }
       .button { font-size: 7px; padding: 9px; }
     }
+
+    /* pixel-rounded corners: every box is a 9-slice pixel-art border image,
+       and the hard shadow is a drop-shadow so it follows the stepped shape */
+    .panel, .speech, .setting, .upload, .upload:hover, .upload.over, .choice, .choice:hover,
+    .choice.selected, .button, .button:hover, .button.secondary, .button:disabled,
+    .image-frame, .upload-preview { background: transparent; box-shadow: none; }
+    .panel { border: 3px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 9px stretch; filter: drop-shadow(5px 5px 0 var(--ink)); }
+    .speech { border: 3px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23383a40'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23383a40'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 9px stretch; filter: drop-shadow(4px 4px 0 var(--ink)); }
+    .setting { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px stretch; }
+    .upload { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='7' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='9' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px round; }
+    .upload:hover, .upload.over { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='7' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='9' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%2343454b'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%2343454b'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%2343454b'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='9' width='1' height='1' fill='%230f1012'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
+    .image-frame { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px stretch; padding: 2px; }
+    .upload-preview { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%231d1e21'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px stretch; padding: 2px; }
+    .choice { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px stretch; }
+    .choice:hover { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%2343454b'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%2343454b'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
+    .choice.selected, .choice.selected:hover { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
+    .choice.selected { filter: drop-shadow(3px 3px 0 var(--ink)); }
+    .button { border: 2px solid transparent; border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23c4f24a'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E") 3 fill / 6px stretch; filter: drop-shadow(3px 3px 0 var(--ink)); }
+    .button:hover { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23a8d52f'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
+    .button.secondary, .button.secondary:hover { border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='7' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Crect x='2' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%230f1012'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%230f1012'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%232b2d31'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%230f1012'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%230f1012'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%230f1012'/%3E%3C/svg%3E"); }
+    .button:disabled { filter: none; }
   </style>
 </head>
 <body>
   <main class="app">
     <section class="guide" aria-live="polite">
-      <svg class="max" viewBox="0 0 16 16" role="img" aria-label="Max" shape-rendering="crispEdges">
-        <rect x="4" y="1" width="8" height="2" fill="#252b3d"/>
-        <rect x="2" y="3" width="12" height="9" fill="#252b3d"/>
-        <rect x="3" y="4" width="10" height="7" fill="#4264d8"/>
-        <rect x="1" y="5" width="1" height="4" fill="#252b3d"/>
-        <rect x="14" y="5" width="1" height="4" fill="#252b3d"/>
-        <rect x="5" y="6" width="2" height="2" fill="#fffdf7"/>
-        <rect x="9" y="6" width="2" height="2" fill="#fffdf7"/>
-        <rect x="6" y="7" width="1" height="1" fill="#252b3d"/>
-        <rect x="10" y="7" width="1" height="1" fill="#252b3d"/>
-        <rect x="7" y="9" width="2" height="1" fill="#d9ef83"/>
-        <rect x="4" y="12" width="3" height="2" fill="#252b3d"/>
-        <rect x="9" y="12" width="3" height="2" fill="#252b3d"/>
+      <svg class="max" viewBox="0 0 16 16" role="img" aria-label="Max the robot" shape-rendering="crispEdges">
+        <g class="bulb"><rect x="7" y="0" width="2" height="1" fill="#c4f24a"/></g>
+        <rect x="7" y="1" width="2" height="1" fill="#0f1012"/>
+        <rect x="2" y="2" width="12" height="1" fill="#0f1012"/>
+        <rect x="1" y="3" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="3" width="3" height="1" fill="#dcf98f"/>
+        <rect x="5" y="3" width="9" height="1" fill="#c4f24a"/>
+        <rect x="14" y="3" width="1" height="1" fill="#0f1012"/>
+        <rect x="1" y="4" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="4" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="4" width="10" height="1" fill="#0f1012"/>
+        <rect x="13" y="4" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="4" width="1" height="1" fill="#0f1012"/>
+        <rect x="0" y="5" width="2" height="1" fill="#0f1012"/>
+        <rect x="2" y="5" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="5" width="1" height="1" fill="#0f1012"/>
+        <rect x="6" y="5" width="4" height="1" fill="#0f1012"/>
+        <rect x="12" y="5" width="1" height="1" fill="#0f1012"/>
+        <rect x="13" y="5" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="5" width="2" height="1" fill="#0f1012"/>
+        <rect x="0" y="6" width="2" height="1" fill="#0f1012"/>
+        <rect x="2" y="6" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="6" width="1" height="1" fill="#0f1012"/>
+        <rect x="6" y="6" width="4" height="1" fill="#0f1012"/>
+        <rect x="12" y="6" width="1" height="1" fill="#0f1012"/>
+        <rect x="13" y="6" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="6" width="2" height="1" fill="#0f1012"/>
+        <rect x="0" y="7" width="2" height="1" fill="#0f1012"/>
+        <rect x="2" y="7" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="7" width="10" height="1" fill="#0f1012"/>
+        <rect x="13" y="7" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="7" width="2" height="1" fill="#0f1012"/>
+        <rect x="1" y="8" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="8" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="8" width="2" height="1" fill="#0f1012"/>
+        <rect x="5" y="8" width="1" height="1" fill="#e9fbb0"/>
+        <rect x="6" y="8" width="4" height="1" fill="#0f1012"/>
+        <rect x="10" y="8" width="1" height="1" fill="#e9fbb0"/>
+        <rect x="11" y="8" width="2" height="1" fill="#0f1012"/>
+        <rect x="13" y="8" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="8" width="1" height="1" fill="#0f1012"/>
+        <rect x="1" y="9" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="9" width="1" height="1" fill="#c4f24a"/>
+        <rect x="3" y="9" width="3" height="1" fill="#0f1012"/>
+        <rect x="6" y="9" width="4" height="1" fill="#e9fbb0"/>
+        <rect x="10" y="9" width="3" height="1" fill="#0f1012"/>
+        <rect x="13" y="9" width="1" height="1" fill="#c4f24a"/>
+        <rect x="14" y="9" width="1" height="1" fill="#0f1012"/>
+        <rect x="1" y="10" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="10" width="12" height="1" fill="#98c426"/>
+        <rect x="14" y="10" width="1" height="1" fill="#0f1012"/>
+        <rect x="2" y="11" width="12" height="1" fill="#0f1012"/>
+        <rect x="4" y="12" width="1" height="1" fill="#0f1012"/>
+        <rect x="5" y="12" width="6" height="1" fill="#c4f24a"/>
+        <rect x="11" y="12" width="1" height="1" fill="#0f1012"/>
+        <rect x="4" y="13" width="1" height="1" fill="#0f1012"/>
+        <rect x="5" y="13" width="1" height="1" fill="#c4f24a"/>
+        <rect x="6" y="13" width="4" height="1" fill="#c4f24a"/>
+        <rect x="10" y="13" width="1" height="1" fill="#c4f24a"/>
+        <rect x="11" y="13" width="1" height="1" fill="#0f1012"/>
+        <rect x="4" y="14" width="8" height="1" fill="#0f1012"/>
+        <rect x="3" y="15" width="3" height="1" fill="#0f1012"/>
+        <rect x="10" y="15" width="3" height="1" fill="#0f1012"/>
+        <rect class="eye" x="4" y="5" width="2" height="2" fill="#d9ef83"/><rect class="eye" x="10" y="5" width="2" height="2" fill="#d9ef83"/>
       </svg>
       <div class="speech" id="max-message">Hey! I'm Max. Pick an image and I'll guide you through the rest.</div>
     </section>
@@ -312,7 +399,7 @@
         </div>
         <div class="setting" id="threshold-setting" hidden>
           <label for="threshold"><span>THRESHOLD</span><output id="threshold-value">128</output></label>
-          <input type="range" id="threshold" min="0" max="255" value="128">
+          <input type="range" class="plain" id="threshold" min="0" max="255" value="128">
           <p class="setting-note">Pixels at or above this value become white.</p>
         </div>
         <div class="actions">
@@ -342,10 +429,12 @@
         </div>
       </div>
 
-      <div class="loader" id="loader" role="img" aria-label="Processing" hidden>
-        <i></i><i></i><i></i><i></i><i></i>
+      <div class="status-row">
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+        <div class="loader" id="loader" role="img" aria-label="Processing" hidden>
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
       </div>
-      <div class="status" id="status" role="status" aria-live="polite"></div>
     </section>
   </main>
 
@@ -488,7 +577,15 @@
     document.querySelectorAll("[data-back]").forEach((button) => {
       button.addEventListener("click", () => showStep(Number(button.dataset.back)));
     });
+    function paintBrightness() {
+      const el = byId("brightness");
+      const pos = (Number(el.value) - Number(el.min)) / (Number(el.max) - Number(el.min)) * 100;
+      el.style.setProperty("--a", Math.min(50, pos) + "%");
+      el.style.setProperty("--b", Math.max(50, pos) + "%");
+    }
+    paintBrightness();
     byId("brightness").addEventListener("input", () => {
+      paintBrightness();
       const value = Number(byId("brightness").value);
       byId("brightness-value").textContent = value > 0 ? "+" + value : String(value);
     });
