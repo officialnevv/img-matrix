@@ -231,26 +231,19 @@
     .status-row { position: relative; margin-top: 13px; min-height: 18px; }
     .status-row .status { margin-top: 0; }
     .loader {
-      position: absolute; left: 0; right: 0; top: 0; height: 18px;
-      display: flex; justify-content: center; align-items: flex-end; gap: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+      color: var(--lime);
+      font-family: "Pixel Operator", "Courier New", monospace;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
       pointer-events: none;
     }
     .loader[hidden] { display: none; }
-    .loader i {
-      width: 14px; height: 14px;
-      border: 2px solid var(--ink);
-      background: var(--lime);
-      animation: hop .8s steps(3) infinite;
-    }
-    .loader i:nth-child(2) { animation-delay: .1s; }
-    .loader i:nth-child(3) { animation-delay: .2s; }
-    .loader i:nth-child(4) { animation-delay: .3s; }
-    .loader i:nth-child(5) { animation-delay: .4s; }
-    @keyframes hop {
-      0%, 100% { transform: translateY(0); background: var(--lime); }
-      50% { transform: translateY(-8px); background: #e9fbb0; }
-    }
-    @media (prefers-reduced-motion: reduce) { .loader i { animation: none; } }
     .status { min-height: 18px; font-size: 20px; line-height: 1.25; color: var(--lime); }
     .status.error { color: #ff8a8a; }
 
@@ -263,6 +256,7 @@
       .choices, .results { grid-template-columns: 1fr; }
       .choice { min-height: 70px; }
       .button { font-size: 16px; padding: 9px 5px; }
+      .loader { font-size: 13px; }
       .actions, .action-group { gap: 6px; }
     }
 
@@ -412,6 +406,7 @@
         </div>
         <div class="actions">
           <button class="button secondary" data-back="2" type="button">← BACK</button>
+          <div class="loader" id="loader" role="status" aria-live="polite" hidden>WORKING...</div>
           <button class="button" id="process" type="button">PROCESS →</button>
         </div>
       </div>
@@ -439,9 +434,6 @@
 
       <div class="status-row">
         <div class="status" id="status" role="status" aria-live="polite"></div>
-        <div class="loader" id="loader" role="img" aria-label="Processing" hidden>
-          <i></i><i></i><i></i><i></i><i></i>
-        </div>
       </div>
     </section>
   </main>
